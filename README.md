@@ -7,6 +7,25 @@
   SELECT *
   FROM pedido
   ORDER BY fecha DESC;
+
+ id |  total  |   fecha    | id_cliente | id_comercial
+----+---------+------------+------------+--------------
+ 16 | 2389.23 | 2019-03-11 |          1 |            5
+ 15 |  370.85 | 2019-03-11 |          1 |            5
+ 13 |  545.75 | 2019-01-25 |          6 |            1
+  8 | 1983.43 | 2017-10-10 |          4 |            6
+  1 |   150.5 | 2017-10-05 |          5 |            2
+  3 |   65.26 | 2017-10-05 |          2 |            1
+  5 |   948.5 | 2017-09-10 |          5 |            2
+ 12 |  3045.6 | 2017-04-25 |          2 |            1
+ 14 |  145.82 | 2017-02-02 |          6 |            1
+  9 |  2480.4 | 2016-10-10 |          8 |            3
+  2 |  270.65 | 2016-09-10 |          1 |            5
+ 11 |   75.29 | 2016-08-17 |          3 |            7
+  4 |   110.5 | 2016-08-17 |          8 |            3
+  6 |  2400.6 | 2016-07-27 |          7 |            1
+  7 |    5760 | 2015-09-10 |          2 |            1
+ 10 |  250.45 | 2015-06-27 |          8 |            2
 ~~~
 2. Devuelve todos los datos de los dos pedidos de mayor valor.
 ~~~SQL
@@ -14,23 +33,47 @@
   FROM pedido
   ORDER BY total DESC
   LIMIT 2;
+
+ id | total  |   fecha    | id_cliente | id_comercial
+----+--------+------------+------------+--------------
+  7 |   5760 | 2015-09-10 |          2 |            1
+ 12 | 3045.6 | 2017-04-25 |          2 |            1
 ~~~
 3. Devuelve un listado con los identificadores de los clientes que han realizado algún pedido. Tenga en cuenta que no debe mostrar identificadores que estén repetidos.
 ~~~SQL
   SELECT DISTINCT id_cliente
   FROM pedido;
+
+ id_cliente
+------------
+          3
+          5
+          4
+          6
+          2
+          7
+          1
+          8
 ~~~
 4. Devuelve un listado de todos los pedidos que se realizaron durante el año 2017, cuya cantidad total sea superior a 500€.
 ~~~SQL
   SELECT *
   FROM pedido
   WHERE total > 500 AND fecha < '2018-01-01' AND fecha > '2016-12-31';
+
+ id |  total  |   fecha    | id_cliente | id_comercial
+----+---------+------------+------------+--------------
+  5 |   948.5 | 2017-09-10 |          5 |            2
+  8 | 1983.43 | 2017-10-10 |          4 |            6
+ 12 |  3045.6 | 2017-04-25 |          2 |            1
 ~~~
 5. Devuelve un listado con el nombre y los apellidos de los comerciales que tienen una comisión entre 0.05 y 0.11.
 ~~~SQL
   SELECT nombre, apellido1, apellido2
   FROM comercial
   WHERE comisión BETWEEN 0.05 AND 0.11;
+
+![image](https://github.com/lysusco/Examen_Postgres/assets/127136702/caed90d4-b29d-40c7-a3a1-ea65c2df4d73)
 ~~~
 6. Devuelve el valor de la comisión de mayor valor que existe en la tabla `comercial`.
 ~~~SQL
@@ -162,3 +205,103 @@ Resuelva todas las consultas utilizando las cláusulas `LEFT JOIN` y `RIGHT J
 ~~~
 6. ¿Se podrían realizar las consultas anteriores con `NATURAL LEFT JOIN` o `NATURAL RIGHT JOIN`? Justifique su respuesta.
 No se puede
+
+# **Consultas resumen**
+
+1. Calcula la cantidad total que suman todos los pedidos que aparecen en la tabla `pedido`.
+~~~SQL
+  SELECT SUM(total) AS total_sumatoria
+  FROM pedido;
+~~~
+2. Calcula la cantidad media de todos los pedidos que aparecen en la tabla `pedido`.
+~~~SQL
+  SELECT AVG(total) AS media_total
+  FROM pedido;
+~~~
+3. Calcula el número total de comerciales distintos que aparecen en la tabla `pedido`.
+~~~SQL
+  SELECT COUNT(DISTINCT cc.id)
+  FROM pedido p
+  LEFT JOIN comercial cc ON p.id_comercial = cc.id
+  WHERE cc.id IS NOT NULL;
+~~~
+4. Calcula el número total de clientes que aparecen en la tabla `cliente`.
+~~~SQL
+  SELECT COUNT(id)
+  FROM cliente;
+~~~
+5. Calcula cuál es la mayor cantidad que aparece en la tabla `pedido`.
+~~~SQL
+  SELECT MAX(total)
+  FROM pedido;
+~~~
+6. Calcula cuál es la menor cantidad que aparece en la tabla `pedido`.
+~~~SQL
+  SELECT MIN(total)
+  FROM pedido;
+~~~
+7. Calcula cuál es el valor máximo de categoría para cada una de las ciudades que aparece en la tabla `cliente`.
+~~~SQL
+  SELECT ciudad, MAX(categoria)
+  FROM cliente
+  GROUP BY ciudad;
+~~~
+8. Calcula cuál es el máximo valor de los pedidos realizados durante el mismo día para cada uno de los clientes. Es decir, el mismo cliente puede haber realizado varios pedidos de diferentes cantidades el mismo día. Se pide que se calcule cuál es el pedido de máximo valor para cada uno de los días en los que un cliente ha realizado un pedido. Muestra el identificador del cliente, nombre, apellidos, la fecha y el valor de la cantidad.
+~~~SQL
+  SELECT c.id, c.nombre, c.apellido1, c.apellido2, p.fecha, MAX(p.total) AS cantidad_maxima_dia
+  FROM cliente c
+  INNER JOIN pedido p ON p.id_cliente = c.id
+  GROUP BY c.id, p.fecha;
+~~~
+9. Calcula cuál es el máximo valor de los pedidos realizados durante el mismo día para cada uno de los clientes, teniendo en cuenta que sólo queremos mostrar aquellos pedidos que superen la cantidad de 2000 €.
+~~~SQL
+  SELECT c.id, c.nombre, c.apellido1, c.apellido2, p.fecha, MAX(p.total) AS cantidad_maxima_dia
+  FROM cliente c
+  INNER JOIN pedido p ON p.id_cliente = c.id
+  WHERE p.total > 2000
+  GROUP BY c.id, p.fecha;
+~~~
+10. Calcula el máximo valor de los pedidos realizados para cada uno de los comerciales durante la fecha `2016-08-17`. Muestra el identificador del comercial, nombre, apellidos y total.
+~~~SQL
+  SELECT cc.id, cc.nombre, cc.apellido1, cc.apellido2, MAX(p.total), p.fecha
+  FROM comercial cc
+  INNER JOIN pedido p ON cc.id = p.id_cliente
+  WHERE p.fecha = '2016-08-17'
+  GROUP BY cc.id , p.fecha;
+~~~
+11. Devuelve un listado con el identificador de cliente, nombre y apellidos y el número total de pedidos que ha realizado cada uno de clientes. Tenga en cuenta que pueden existir clientes que no han realizado ningún pedido. Estos clientes también deben aparecer en el listado indicando que el número de pedidos realizados es `0`.
+~~~SQL
+  SELECT c.id, c.nombre, c.apellido1, c.apellido2, COUNT(p.id_cliente)
+  FROM cliente c
+  LEFT JOIN pedido p ON p.id_cliente = c.id
+  GROUP BY c.id
+  ORDER BY c.id;
+~~~
+12. Devuelve un listado con el identificador de cliente, nombre y apellidos y el número total de pedidos que ha realizado cada uno de clientes **durante el año 2017**.
+~~~SQL
+  SELECT c.id, c.nombre, c.apellido1, c.apellido2, COUNT(p.id_cliente)
+  FROM cliente c
+  LEFT JOIN pedido p ON p.id_cliente = c.id
+  WHERE p.fecha > '2016-12-31' AND p.fecha < '2018-01-01'
+  GROUP BY c.id
+  ORDER BY c.id;
+~~~
+13. Devuelve un listado que muestre el identificador de cliente, nombre, primer apellido y el valor de la máxima cantidad del pedido realizado por cada uno de los clientes. El resultado debe mostrar aquellos clientes que no han realizado ningún pedido indicando que la máxima cantidad de sus pedidos realizados es `0`. Puede hacer uso de la función `[IFNULL]`.
+~~~SQL
+  SELECT c.id, c.nombre, c.apellido1, COALESCE(MAX(p.total), 0)
+  FROM cliente c
+  LEFT JOIN pedido p ON c.id = p.id_cliente
+  GROUP BY c.id, c.nombre, c.apellido1;
+~~~
+14. Devuelve cuál ha sido el pedido de máximo valor que se ha realizado cada año.
+~~~SQL
+  SELECT MAX(total), EXTRACT(YEAR FROM fecha) AS año_agrupar
+  FROM pedido
+  GROUP BY año_agrupar;
+~~~
+15. Devuelve el número total de pedidos que se han realizado cada año.
+~~~SQL
+  SELECT COUNT(total), EXTRACT(YEAR FROM fecha) AS año_agrupar
+  FROM pedido
+  GROUP BY año_agrupar;
+~~~
