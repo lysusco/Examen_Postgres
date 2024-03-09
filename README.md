@@ -119,3 +119,46 @@ Resuelva todas las consultas utilizando la sintaxis de `SQL1` y `SQL2`.
   INNER JOIN comercial cc ON p.id_comercial = cc.id
   WHERE cc.nombre = 'Daniel' AND cc.apellido1 = 'Sáez' AND cc.apellido2 = 'Vega';
 ~~~
+
+# **Consultas multitabla (Composición externa)**
+
+Resuelva todas las consultas utilizando las cláusulas `LEFT JOIN` y `RIGHT JOIN`.
+
+1. Devuelve un listado con **todos los clientes** junto con los datos de los pedidos que han realizado. Este listado también debe incluir los clientes que no han realizado ningún pedido. El listado debe estar ordenado alfabéticamente por el primer apellido, segundo apellido y nombre de los clientes.
+~~~SQL
+  SELECT *
+  FROM cliente c
+  LEFT JOIN pedido p ON p.id_cliente = c.id
+  ORDER BY c.apellido1, c.apellido2, c.nombre;
+~~~
+2. Devuelve un listado con **todos los comerciales** junto con los datos de los pedidos que han realizado. Este listado también debe incluir los comerciales que no han realizado ningún pedido. El listado debe estar ordenado alfabéticamente por el primer apellido, segundo apellido y nombre de los comerciales.
+~~~SQL
+  SELECT *
+  FROM comercial cc
+  LEFT JOIN pedido p ON p.id_comercial = cc.id
+  ORDER BY cc.apellido1, cc.apellido2, cc.nombre;
+~~~
+3. Devuelve un listado que solamente muestre los clientes que no han realizado ningún pedido.
+~~~SQL
+  SELECT *
+  FROM cliente c
+  LEFT JOIN pedido p ON p.id_cliente = c.id
+  WHERE p.id_cliente IS NULL;
+~~~
+4. Devuelve un listado que solamente muestre los comerciales que no han realizado ningún pedido.
+~~~SQL
+  SELECT *
+  FROM comercial cc
+  LEFT JOIN pedido p ON p.id_comercial = cc.id
+  WHERE p.id_comercial IS NULL;
+~~~
+5. Devuelve un listado con los clientes que no han realizado ningún pedido y de los comerciales que no han participado en ningún pedido. Ordene el listado alfabéticamente por los apellidos y el nombre. En en listado deberá diferenciar de algún modo los clientes y los comerciales.
+~~~SQL
+  SELECT *
+  FROM comercial cc
+  LEFT JOIN pedido p ON p.id_comercial = cc.id
+  LEFT JOIN cliente c ON p.id_cliente = c.id
+  WHERE p.id_comercial IS NULL OR p.id_cliente IS NULL;
+~~~
+6. ¿Se podrían realizar las consultas anteriores con `NATURAL LEFT JOIN` o `NATURAL RIGHT JOIN`? Justifique su respuesta.
+No se puede
