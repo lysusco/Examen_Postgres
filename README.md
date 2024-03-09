@@ -65,3 +65,57 @@
   WHERE nombre LIKE '%el' OR nombre LIKE '%o';
 ~~~
 
+# **Consultas multitabla (Composición interna)**
+
+Resuelva todas las consultas utilizando la sintaxis de `SQL1` y `SQL2`.
+
+1. Devuelve un listado con el identificador, nombre y los apellidos de todos los clientes que han realizado algún pedido. El listado debe estar ordenado alfabéticamente y se deben eliminar los elementos repetidos.
+~~~SQL
+  SELECT DISTINCT c.id, c.nombre, c.apellido1, c.apellido2
+  FROM cliente c
+  INNER JOIN pedido p ON p.id_cliente = c.id;
+~~~
+2. Devuelve un listado que muestre todos los pedidos que ha realizado cada cliente. El resultado debe mostrar todos los datos de los pedidos y del cliente. El listado debe mostrar los datos de los clientes ordenados alfabéticamente.
+~~~SQL
+  SELECT *
+  FROM cliente c
+  INNER JOIN pedido p ON p.id_cliente = c.id
+  ORDER BY c.nombre;
+~~~
+3. Devuelve un listado que muestre todos los pedidos en los que ha participado un comercial. El resultado debe mostrar todos los datos de los pedidos y de los comerciales. El listado debe mostrar los datos de los comerciales ordenados alfabéticamente.
+~~~SQL
+  SELECT *
+  FROM pedido p
+  INNER JOIN comercial c ON c.id = p.id_comercial
+  ORDER BY c.nombre;
+~~~
+4. Devuelve un listado que muestre todos los clientes, con todos los pedidos que han realizado y con los datos de los comerciales asociados a cada pedido.
+~~~SQL
+  SELECT *
+  FROM cliente c
+  INNER JOIN pedido p ON c.id = p.id_cliente
+  INNER JOIN comercial cc ON cc.id = p.id_comercial;
+~~~
+5. Devuelve un listado de todos los clientes que realizaron un pedido durante el año `2017`, cuya cantidad esté entre `300` € y `1000` €.
+~~~SQL
+  SELECT *
+  FROM cliente c
+  INNER JOIN pedido p ON c.id = p.id_cliente
+  WHERE p.total BETWEEN 300 AND 1000 AND p.fecha > '2016-12-31' AND p.fecha < '2018-01-01';
+~~~
+6. Devuelve el nombre y los apellidos de todos los comerciales que ha participado en algún pedido realizado por `María Santana Moreno`.
+~~~SQL
+  SELECT DISTINCT cc.nombre, cc.apellido1, cc.apellido2
+  FROM comercial cc
+  INNER JOIN pedido p ON p.id_comercial = cc.id
+  INNER JOIN cliente c ON p.id_cliente = c.id
+  WHERE c.nombre = 'María' AND c.apellido1 = 'Santana' AND c.apellido2 = 'Moreno';
+~~~
+7. Devuelve el nombre de todos los clientes que han realizado algún pedido con el comercial `Daniel Sáez Vega`.
+~~~SQL
+  SELECT DISTINCT c.nombre
+  FROM cliente c
+  INNER JOIN pedido p ON p.id_cliente = c.id
+  INNER JOIN comercial cc ON p.id_comercial = cc.id
+  WHERE cc.nombre = 'Daniel' AND cc.apellido1 = 'Sáez' AND cc.apellido2 = 'Vega';
+~~~
