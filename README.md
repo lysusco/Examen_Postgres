@@ -598,3 +598,112 @@ No se puede
      3 |        2019
      2 |        2015
 ~~~
+
+# **Con operadores básicos de comparación**
+
+1. Devuelve un listado con todos los pedidos que ha realizado `Adela Salas Díaz`. (Sin utilizar `INNER JOIN`).
+~~~SQL
+  SELECT *
+  FROM pedido
+  WHERE id_cliente = 2;
+
+ id | total  |   fecha    | id_cliente | id_comercial
+----+--------+------------+------------+--------------
+  3 |  65.26 | 2017-10-05 |          2 |            1
+  7 |   5760 | 2015-09-10 |          2 |            1
+ 12 | 3045.6 | 2017-04-25 |          2 |            1
+~~~
+2. Devuelve el número de pedidos en los que ha participado el comercial `Daniel Sáez Vega`. (Sin utilizar `INNER JOIN`)
+~~~SQL
+  SELECT *
+  FROM pedido
+  WHERE id_comercial = 1;
+
+ id | total  |   fecha    | id_cliente | id_comercial
+----+--------+------------+------------+--------------
+  3 |  65.26 | 2017-10-05 |          2 |            1
+  6 | 2400.6 | 2016-07-27 |          7 |            1
+  7 |   5760 | 2015-09-10 |          2 |            1
+ 12 | 3045.6 | 2017-04-25 |          2 |            1
+ 13 | 545.75 | 2019-01-25 |          6 |            1
+ 14 | 145.82 | 2017-02-02 |          6 |            1
+~~~
+3. Devuelve los datos del cliente que realizó el pedido más caro en el año `2019`. (Sin utilizar `INNER JOIN`)
+~~~SQL
+  SELECT * 
+  FROM cliente
+  WHERE id = (SELECT id_cliente
+  			FROM pedido
+  			WHERE total = (SELECT MAX(total)
+  						   FROM pedido
+  						   WHERE fecha > '2018-12-31' AND fecha < '2020-01-01'));
+
+ id | nombre | apellido1 | apellido2 | ciudad  | categoria
+----+--------+-----------+-----------+---------+-----------
+  1 | Aar¾n  | Rivero    | G¾mez     | AlmerÝa |       100
+~~~
+4. Devuelve la fecha y la cantidad del pedido de menor valor realizado por el cliente `Pepe Ruiz Santana`.
+~~~SQL
+  SELECT fecha, total
+  FROM pedido
+  WHERE id_cliente = (SELECT id FROM cliente WHERE id = 8)
+  ORDER BY total
+  LIMIT 1;
+
+   fecha    | total
+------------+-------
+ 2016-08-17 | 110.5
+~~~
+5. Devuelve un listado con los datos de los clientes y los pedidos, de todos los clientes que han realizado un pedido durante el año `2017` con un valor mayor o igual al valor medio de los pedidos realizados durante ese mismo año.
+~~~SQL
+
+~~~
+# **Subconsultas con `IN` y `NOT IN`**
+
+1. Devuelve un listado de los clientes que no han realizado ningún pedido. (Utilizando `IN` o `NOT IN`).
+~~~sql
+    SELECT id, nombre
+    FROM cliente
+    WHERE id NOT IN (SELECT id_cliente FROM pedido);
+
+ id |  nombre
+----+-----------
+  9 | Guillermo
+ 10 | Daniel
+~~~
+2. Devuelve un listado de los comerciales que no han realizado ningún pedido. (Utilizando `IN` o `NOT IN`).
+~~~sql
+  SELECT id, nombre
+  FROM comercial
+  WHERE id NOT IN (SELECT id_comercial FROM pedido);
+
+ id | nombre
+----+---------
+  4 | Marta
+  8 | Alfredo
+~~~
+
+# **Subconsultas con `EXISTS` y `NOT EXISTS`**
+
+1. Devuelve un listado de los clientes que no han realizado ningún pedido. (Utilizando `EXISTS` o `NOT EXISTS`).
+~~~SQL
+  SELECT *
+  FROM cliente c
+  WHERE NOT EXISTS (SELECT id_cliente FROM pedido p WHERE p.id_cliente = c.id);
+
+ id |  nombre   | apellido1 | apellido2 | ciudad  | categoria
+----+-----------+-----------+-----------+---------+-----------
+ 10 | Daniel    | Santana   | Loyola    | Sevilla |       125
+  9 | Guillermo | L¾pez     | G¾mez     | Granada |       225
+~~~
+2. Devuelve un listado de los comerciales que no han realizado ningún pedido. (Utilizando `EXISTS` o `NOT EXISTS`).
+~~~SQL
+  SELECT *
+  FROM comercial cc
+  WHERE NOT EXISTS (SELECT id_comercial FROM pedido p WHERE p.id_comercial = cc.id);
+
+ id | nombre  | apellido1 | apellido2 | comisi¾n
+----+---------+-----------+-----------+----------
+  8 | Alfredo | Ruiz      | Flores    |     0.05
+  4 | Marta   | Herrera   | Gil       |     0.14
+~~~
